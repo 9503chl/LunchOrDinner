@@ -48,8 +48,9 @@ public class ToggleFunction: MonoBehaviour
             {
                 toggles[i].isOn = isOn;
             }
-            count = isOn ? 0 : 6;
+            count = isOn ? 5 : 0;
         }
+
         isToggleAll = false;
     }
     void ToggleOn(bool isOn, List<GameObject> lists)//다시 켜질때 전체선택이 켜져야함.
@@ -61,9 +62,9 @@ public class ToggleFunction: MonoBehaviour
             {
                 lists[i].SetActive(!isOn);
             }
+            count = isOn ? ++count : --count;
             bool AllToggle = count == 5 ? true : false;
             ViewToggle[0].isOn = AllToggle;
-            count = isOn ? count-- : count++;
         }
         isTogglePrivate = false;
     }
