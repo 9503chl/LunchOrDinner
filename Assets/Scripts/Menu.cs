@@ -6,12 +6,12 @@ using UnityEngine.UIElements;
 
 public enum Category
 {
-    None,
-    Spicy,
-    Crispy,
-    NotCraving,
-    TooFar,
-    Waiting
+    None,//0
+    Spicy,//1
+    Crispy,//2
+    NotCraving,//3
+    TooFar,//4
+    Waiting//5
 }
 
 [CreateAssetMenu]

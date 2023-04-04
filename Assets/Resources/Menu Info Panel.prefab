@@ -287,7 +287,7 @@ GameObject:
   - component: {fileID: 4306533376488614951}
   - component: {fileID: 2663643102156341489}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image Browser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

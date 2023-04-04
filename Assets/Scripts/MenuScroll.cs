@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -10,9 +11,14 @@ public class MenuScroll : MonoBehaviour
 
     [SerializeField] GameObject Content;
 
-    [SerializeField] Scrollbar scrollbar; 
+    [SerializeField] Scrollbar scrollbar;
 
-    List<GameObject> menuContents = new List<GameObject>();
+    public List<GameObject> menuContents = new List<GameObject>();
+    public List<GameObject> SpicyMenu = new List<GameObject>();
+    public List<GameObject> CrispyMenu = new List<GameObject>();
+    public List<GameObject> NotCravingMenu = new List<GameObject>();
+    public List<GameObject> TooFarMenu = new List<GameObject>();
+    public List<GameObject> WaitingMenu = new List<GameObject>();
 
     Coroutine colorOn;
 
@@ -20,30 +26,28 @@ public class MenuScroll : MonoBehaviour
     {
         for(int i = 0; i<m_menu.menu.Count; i++)
         {
-            GameObject temp = Instantiate(Content,transform);
-            Text[] texts = temp.GetComponentsInChildren<Text>();
-            texts[0].text = m_menu.menu[i];//이름
-            texts[1].text = m_menu.category[i].ToString();//카테고리
-            texts[2].text = m_menu.info[i];//설명
-            texts[3].text = m_menu.scope[i].ToString();//평점
-            menuContents.Add(temp);
+            Add(i);
         }
     }
-    public void Add()
+    public void Add(int index)
     {
         GameObject temp = Instantiate(Content, transform);
-        menuContents.Add(temp);
+        Button button = temp.GetComponentInChildren<Button>();
+        Image image = temp.GetComponentInChildren<Image>();
+        button.onClick.AddListener(delegate { ImageBrowse(image); });
         Text[] texts = temp.GetComponentsInChildren<Text>();
-        int index = m_menu.menu.Count-1;
         texts[0].text = m_menu.menu[index];//이름
         texts[1].text = m_menu.category[index].ToString();//카테고리
         texts[2].text = m_menu.info[index];//설명
         texts[3].text = m_menu.scope[index].ToString();//평점
+        menuContents.Add(temp);
+        AddMenu(m_menu.category[index], temp);
     }
     public void Remove(int index)
     {
         GameObject target = menuContents[index];
         menuContents.RemoveAt(index);
+        RemoveMenu(m_menu.category[index], index);
         Destroy(target);
     }
     public void Search(int index)
@@ -51,19 +55,67 @@ public class MenuScroll : MonoBehaviour
         scrollbar.value = (float)index / m_menu.menu.Count;
         GameObject obj = menuContents[index];
         Text[] texts= obj.GetComponentsInChildren<Text>();
-        colorOn = StartCoroutine(ColorOn(texts));
+        if (colorOn == null)
+        {
+            colorOn = StartCoroutine(ColorOn(texts));
+        }
     }
+    public void AddMenu(Category category, GameObject obj)
+    {
+        switch (category)
+        {
+            case Category.Spicy :
+                SpicyMenu.Add(obj);
+                break;
+            case Category.Crispy:
+                CrispyMenu.Add(obj);
+                break;
+            case Category.NotCraving:
+                NotCravingMenu.Add(obj);
+                break;
+            case Category.TooFar:
+                TooFarMenu.Add(obj);
+                break;
+            case Category.Waiting:
+                WaitingMenu.Add(obj);
+                break;
+        }
+    }
+    public void RemoveMenu(Category category, int index)
+    {
+        switch (category)
+        {
+            case Category.Spicy:
+                SpicyMenu.RemoveAt(index);
+                break;
+            case Category.Crispy:
+                CrispyMenu.RemoveAt(index);
+                break;
+            case Category.NotCraving:
+                NotCravingMenu.RemoveAt(index);
+                break;
+            case Category.TooFar:
+                TooFarMenu.RemoveAt(index);
+                break;
+            case Category.Waiting:
+                WaitingMenu.RemoveAt(index);
+                break;
+        }
+    }
+    void ImageBrowse(Image image)//이미지 등록하는거 만들어야함
+    {
 
+    }
     IEnumerator ColorOn(Text[] texts)
     {
-        texts[0].color = Color.blue;
-        texts[1].color = Color.blue;
-        texts[2].color = Color.blue;
-        texts[3].color = Color.blue;
+        for(int i = 0; i< texts.Length; i++)
+        {
+            texts[i].color = Color.blue;
+        }
         yield return new WaitForSeconds(5f);
-        texts[0].color = Color.white;
-        texts[1].color = Color.white;
-        texts[2].color = Color.white;
-        texts[3].color = Color.white;
+        for (int i = 0; i < texts.Length; i++)
+        {
+            texts[i].color = Color.white;
+        }
     }
 }

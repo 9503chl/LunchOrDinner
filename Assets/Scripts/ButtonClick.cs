@@ -11,6 +11,8 @@ public class ButtonClick : MonoBehaviour
 {
     [SerializeField] Menu m_menu;
 
+    [SerializeField] UnityEngine.UI.Toggle[] CategoryToggles;
+
     [SerializeField] UnityEngine.UI.Button MenuOpen;
 
     [SerializeField] UnityEngine.UI.Button SelectButton;
@@ -33,6 +35,8 @@ public class ButtonClick : MonoBehaviour
 
     [SerializeField] GameObject menuScroll;
 
+    Category category;
+
     MenuScroll ms;
 
     Coroutine TextCoroutine;
@@ -42,18 +46,29 @@ public class ButtonClick : MonoBehaviour
         SelectButton.onClick.AddListener(SelectMenu);
         RevokeButton.onClick.AddListener(RevokeMenu);
         SearchButton.onClick.AddListener(SearchMenu);
+        MenuOpen.onClick.AddListener(OpenMenu);
         BackButton.onClick.AddListener(Back);
+        int index = 0;
+        foreach (UnityEngine.UI.Toggle item in CategoryToggles)
+        {
+            item.onValueChanged.AddListener(delegate { CategoryToggle(item,index); });
+            index++;
+        }
         ms = menuScroll.GetComponent<MenuScroll>();
     }
-
+    void OpenMenu()
+    {
+        menuScroll.SetActive(true);
+    }
     void CommitMenu()
     {
         if (!m_menu.menu.Contains(CommitInput[0].text))
         {
             m_menu.menu.Add(CommitInput[0].text);
             m_menu.info.Add(CommitInput[1].text);
+            m_menu.category.Add(category);
             m_menu.scope.Add(int.Parse(CommitInput[2].text));
-            ms.Add();
+            ms.Add(m_menu.menu.Count);
         }
         else if(TextCoroutine == null)
         {
@@ -65,7 +80,8 @@ public class ButtonClick : MonoBehaviour
         int index = m_menu.menu.Count;
         ResultText[0].text = m_menu.menu[Random.Range(0, index)];
         ResultText[1].text = m_menu.info[Random.Range(0, index)];
-        ResultText[2].text = m_menu.scope[Random.Range(0, index)].ToString();
+        ResultText[2].text = m_menu.category[Random.Range(0, index)].ToString();
+        ResultText[3].text = m_menu.scope[Random.Range(0, index)].ToString();
     }
     void RevokeMenu()
     {
@@ -74,6 +90,7 @@ public class ButtonClick : MonoBehaviour
             int index = m_menu.menu.IndexOf(RevokeInput.text);
             m_menu.menu.Remove(RevokeInput.text);
             m_menu.info.RemoveAt(index);
+            m_menu.category.RemoveAt(index);
             m_menu.scope.RemoveAt(index);
             ms.Remove(index);
         }
@@ -82,6 +99,11 @@ public class ButtonClick : MonoBehaviour
             TextCoroutine = StartCoroutine(Notice("메뉴가 존재하지 않습니다."));
         }
     }
+    void CategoryToggle(UnityEngine.UI.Toggle toggle, int index)
+    {
+        category = (Category)index;
+    }
+
     void SearchMenu()
     {
         if (m_menu.menu.Contains(RevokeInput.text))
