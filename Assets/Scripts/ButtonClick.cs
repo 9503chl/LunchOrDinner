@@ -4,36 +4,30 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 
-public class ButtonClick : MonoBehaviour
+public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
 {
     [SerializeField] Menu m_menu;
 
-    [SerializeField] UnityEngine.UI.Toggle[] CategoryToggles;
+    [SerializeField] Toggle[] CategoryToggles;
 
-    [SerializeField] UnityEngine.UI.Button MenuOpen;
+    [SerializeField] Button SlotOpen;
 
-    [SerializeField] UnityEngine.UI.Button SelectButton;
+    [SerializeField] Button CommitButton;
 
-    [SerializeField] UnityEngine.UI.Button CommitButton;
+    [SerializeField] Button RevokeButton;
 
-    [SerializeField] UnityEngine.UI.Button RevokeButton;
+    [SerializeField] Button SearchButton;
 
-    [SerializeField] UnityEngine.UI.Button SearchButton;
-
-    [SerializeField] UnityEngine.UI.Button BackButton;
+    [SerializeField] Button BackButton;
 
     [SerializeField] Text[] CommitInput;
 
     [SerializeField] Text RevokeInput;
 
-    [SerializeField] Text[] ResultText;
+    [SerializeField] Image NoticePanel;
 
-    [SerializeField] UnityEngine.UI.Image NoticePanel;
-
-    [SerializeField] GameObject menuScroll;
+    [SerializeField] GameObject SlotMachine;
 
     Category category;
 
@@ -43,22 +37,23 @@ public class ButtonClick : MonoBehaviour
     void Start()
     {
         CommitButton.onClick.AddListener(CommitMenu);
-        SelectButton.onClick.AddListener(SelectMenu);
         RevokeButton.onClick.AddListener(RevokeMenu);
         SearchButton.onClick.AddListener(SearchMenu);
-        MenuOpen.onClick.AddListener(OpenMenu);
+        SlotOpen.onClick.AddListener(OpenSlot);
         BackButton.onClick.AddListener(Back);
-        int index = 0;
-        foreach (UnityEngine.UI.Toggle item in CategoryToggles)
-        {
-            item.onValueChanged.AddListener(delegate { CategoryToggle(item,index); });
-            index++;
-        }
-        ms = menuScroll.GetComponent<MenuScroll>();
+
+        CategoryToggles[0].onValueChanged.AddListener(delegate { CategoryToggle(0); });
+        CategoryToggles[1].onValueChanged.AddListener(delegate { CategoryToggle(1); });
+        CategoryToggles[2].onValueChanged.AddListener(delegate { CategoryToggle(2); });
+        CategoryToggles[3].onValueChanged.AddListener(delegate { CategoryToggle(3); });
+        CategoryToggles[4].onValueChanged.AddListener(delegate { CategoryToggle(4); });
+        CategoryToggles[5].onValueChanged.AddListener(delegate { CategoryToggle(5); });
+
+        ms = FindObjectOfType<MenuScroll>();
     }
-    void OpenMenu()
+    void OpenSlot()
     {
-        menuScroll.SetActive(true);
+        SlotMachine.SetActive(true);
     }
     void CommitMenu()
     {
@@ -68,38 +63,30 @@ public class ButtonClick : MonoBehaviour
             m_menu.info.Add(CommitInput[1].text);
             m_menu.category.Add(category);
             m_menu.scope.Add(int.Parse(CommitInput[2].text));
-            ms.Add(m_menu.menu.Count);
+            ms.Add(m_menu.menu.Count-1);
         }
         else if(TextCoroutine == null)
         {
             TextCoroutine = StartCoroutine(Notice("메뉴가 이미 존재합니다."));
         }
     }
-    void SelectMenu()//선택
-    {
-        int index = m_menu.menu.Count;
-        ResultText[0].text = m_menu.menu[Random.Range(0, index)];
-        ResultText[1].text = m_menu.info[Random.Range(0, index)];
-        ResultText[2].text = m_menu.category[Random.Range(0, index)].ToString();
-        ResultText[3].text = m_menu.scope[Random.Range(0, index)].ToString();
-    }
     void RevokeMenu()
     {
         if (m_menu.menu.Contains(RevokeInput.text))
         {
             int index = m_menu.menu.IndexOf(RevokeInput.text);
+            ms.Remove(index);
             m_menu.menu.Remove(RevokeInput.text);
             m_menu.info.RemoveAt(index);
             m_menu.category.RemoveAt(index);
             m_menu.scope.RemoveAt(index);
-            ms.Remove(index);
         }
         else if (TextCoroutine == null)
         {
             TextCoroutine = StartCoroutine(Notice("메뉴가 존재하지 않습니다."));
         }
     }
-    void CategoryToggle(UnityEngine.UI.Toggle toggle, int index)
+    void CategoryToggle(int index)
     {
         category = (Category)index;
     }
@@ -118,7 +105,7 @@ public class ButtonClick : MonoBehaviour
     }
     void Back()
     {
-        menuScroll.SetActive(false);
+         Application.Quit();
     }
 
     IEnumerator Notice(string text)

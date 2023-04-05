@@ -115,7 +115,7 @@ public class MenuScroll : MonoBehaviour
         yield return new WaitForSeconds(5f);
         for (int i = 0; i < texts.Length; i++)
         {
-            texts[i].color = Color.white;
+            texts[i].color = Color.black;
         }
     }
 }
