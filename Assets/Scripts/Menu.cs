@@ -13,15 +13,13 @@ public enum Category
     TooFar,//4
     Waiting//5
 }
-public struct Menus {
-    public Sprite images;
-    public string menu;
-    public Category category;
-    public string info;
-    public int scope;
-}
+
 [CreateAssetMenu]
 public class Menu : ScriptableObject
 {
-    public List<Menus> MenuList = new List<Menus>();
+    public List<Sprite> images = new List<Sprite>();
+    public List<string> menu = new List<string>();
+    public List<Category> category = new List<Category>() { };
+    public List<string> info = new List<string>();
+    public List<int> scope = new List<int>();
 }
