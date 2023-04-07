@@ -29,7 +29,7 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
 
     [SerializeField] GameObject SlotMachine;
 
-    Category category;
+    Category c_category;
 
     MenuScroll ms;
 
@@ -57,13 +57,17 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
     }
     void CommitMenu()
     {
-        if (!m_menu.menu.Contains(CommitInput[0].text))
+        
+        if (m_menu.MenuList.FindIndex(x => x.menu == CommitInput[0].text) == -1)
         {
-            m_menu.menu.Add(CommitInput[0].text);
-            m_menu.info.Add(CommitInput[1].text);
-            m_menu.category.Add(category);
-            m_menu.scope.Add(int.Parse(CommitInput[2].text));
-            ms.Add(m_menu.menu.Count-1);
+            Menus menus = new Menus
+            {
+                menu = CommitInput[0].text,
+                info = CommitInput[1].text,
+                category = c_category,
+                scope = int.Parse(CommitInput[2].text)
+            };
+            ms.Add(m_menu.MenuList.Count-1);
         }
         else if(TextCoroutine == null)
         {
@@ -72,14 +76,11 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
     }
     void RevokeMenu()
     {
-        if (m_menu.menu.Contains(RevokeInput.text))
+        int index = m_menu.MenuList.FindIndex(x => x.menu == RevokeInput.text);
+        if (index != -1)
         {
-            int index = m_menu.menu.IndexOf(RevokeInput.text);
             ms.Remove(index);
-            m_menu.menu.Remove(RevokeInput.text);
-            m_menu.info.RemoveAt(index);
-            m_menu.category.RemoveAt(index);
-            m_menu.scope.RemoveAt(index);
+            m_menu.MenuList.RemoveAt(index);
         }
         else if (TextCoroutine == null)
         {
@@ -88,14 +89,14 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
     }
     void CategoryToggle(int index)
     {
-        category = (Category)index;
+        c_category = (Category)index;
     }
 
     void SearchMenu()
     {
-        if (m_menu.menu.Contains(RevokeInput.text))
+        int index = m_menu.MenuList.FindIndex(x => x.menu == RevokeInput.text);
+        if (index != -1)
         {
-            int index = m_menu.menu.IndexOf(RevokeInput.text);
             ms.Search(index);
         }
         else if(TextCoroutine == null)
