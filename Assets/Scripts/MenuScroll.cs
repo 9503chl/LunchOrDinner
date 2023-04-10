@@ -14,6 +14,10 @@ public class MenuScroll : MonoBehaviour
 
     [SerializeField] Scrollbar scrollbar;
 
+    Texture2D tempTexture;
+
+    Rect tempRect;
+
     string imagePath = "Assets/Resources/Images/";
 
     public List<GameObject> menuContents = new List<GameObject>(); 
@@ -31,7 +35,6 @@ public class MenuScroll : MonoBehaviour
         {
             AddContent(i);
         }
-        //시작시 이미지 불러와야함.
     }
     public void AddContent(int index)
     {
@@ -116,7 +119,7 @@ public class MenuScroll : MonoBehaviour
     {
         FileBrowser.SetFilters(true, new FileBrowser.Filter("Images", ".jpg", ".png"), new FileBrowser.Filter("Text Files", ".txt", ".pdf"));
 
-        FileBrowser.SetDefaultFilter(".jpg");
+        FileBrowser.SetDefaultFilter(".png");
 
         FileBrowser.SetExcludedExtensions(".lnk", ".tmp", ".zip", ".rar", ".exe");
 
@@ -128,11 +131,11 @@ public class MenuScroll : MonoBehaviour
     {
         byte[] bytes = File.ReadAllBytes(imagePath + index +".png");
 
-        Texture2D texture = new Texture2D(1920, 1080);
-        texture.LoadImage(bytes);
+        tempTexture = new Texture2D(0, 0);
+        tempTexture.LoadImage(bytes);
 
-        Rect rect = new Rect(0, 0, 1920, 1080);
-        image.sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+        tempRect = new Rect(0,0, tempTexture.width, tempTexture.height);
+        image.sprite = Sprite.Create(tempTexture, tempRect, new Vector2(0.5f, 0.5f));
     }
     IEnumerator ShowLoadDialogCoroutine(Image image, int index)
     {
@@ -146,14 +149,13 @@ public class MenuScroll : MonoBehaviour
                 Debug.Log(FileBrowser.Result[i]);
 
             byte[] bytes = FileBrowserHelpers.ReadBytesFromFile(FileBrowser.Result[0]);
-            
-            Texture2D texture = new Texture2D(1920, 1080);//이미지 사이즈가 안 맞음.
-            texture.LoadImage(bytes);
+            tempTexture = new Texture2D(0, 0);//이미지 사이즈가 안 맞음, 불러왔을시 사이즈 결정가능?
+            tempTexture.LoadImage(bytes);
 
-            Rect rect = new Rect(0, 0, 1920, 1080);
-            image.sprite = Sprite.Create(texture, rect, new Vector2(0.5f,0.5f));
+            tempRect = new Rect(0,0, tempTexture.width, tempTexture.height);
+            image.sprite = Sprite.Create(tempTexture, tempRect, new Vector2(0.5f,0.5f));
 
-            File.WriteAllBytes(imagePath + index + ".png", texture.EncodeToPNG());
+            File.WriteAllBytes(imagePath + index + ".png", tempTexture.EncodeToPNG());
 
             string destinationPath = Path.Combine(Application.persistentDataPath, FileBrowserHelpers.GetFilename(FileBrowser.Result[0]));
             FileBrowserHelpers.CopyFile(FileBrowser.Result[0], destinationPath);
