@@ -14,7 +14,9 @@ public class MenuScroll : MonoBehaviour
 
     [SerializeField] Scrollbar scrollbar;
 
-    public List<GameObject> menuContents = new List<GameObject>();
+    string imagePath = "Assets/Resources/Images/";
+
+    public List<GameObject> menuContents = new List<GameObject>(); 
     public List<GameObject> SpicyMenu = new List<GameObject>();
     public List<GameObject> CrispyMenu = new List<GameObject>();
     public List<GameObject> NotCravingMenu = new List<GameObject>();
@@ -27,15 +29,21 @@ public class MenuScroll : MonoBehaviour
     {
         for(int i = 0; i<m_menu.menu.Count; i++)
         {
-            Add(i);
+            AddContent(i);
         }
+        //시작시 이미지 불러와야함.
     }
-    public void Add(int index)
+    public void AddContent(int index)
     {
         GameObject temp = Instantiate(Content, transform);
+        temp.name = index.ToString();
         Button button = temp.GetComponentInChildren<Button>();
         Image image = temp.GetComponentInChildren<Image>();
-        button.onClick.AddListener(delegate { ImageBrowse(image); });
+        if(File.Exists(imagePath + index +".png")) 
+        {
+            LoadImage(image, index);
+        }
+        button.onClick.AddListener(delegate { ImageBrowse(image,index); });
         Text[] texts = temp.GetComponentsInChildren<Text>();
         texts[0].text = m_menu.menu[index];//이름
         texts[1].text = m_menu.category[index].ToString();//카테고리
@@ -49,6 +57,7 @@ public class MenuScroll : MonoBehaviour
         GameObject target = menuContents[index];
         menuContents.RemoveAt(index);
         RemoveMenu(m_menu.category[index], index);
+        File.Delete(imagePath + index +".png");
         Destroy(target);
     }
     public void Search(int index)
@@ -103,7 +112,7 @@ public class MenuScroll : MonoBehaviour
                 break;
         }
     }
-    public void ImageBrowse(Image image)
+    public void ImageBrowse(Image image,int index)
     {
         FileBrowser.SetFilters(true, new FileBrowser.Filter("Images", ".jpg", ".png"), new FileBrowser.Filter("Text Files", ".txt", ".pdf"));
 
@@ -113,33 +122,39 @@ public class MenuScroll : MonoBehaviour
 
         FileBrowser.AddQuickLink("Users", "C:\\Users", null);
         
-        StartCoroutine(ShowLoadDialogCoroutine(image));
+        StartCoroutine(ShowLoadDialogCoroutine(image, index));
     }
-    IEnumerator ShowLoadDialogCoroutine(Image image)
+    public void LoadImage(Image image, int index)//자동으로 로드될지 모르겠음.
+    {
+        byte[] bytes = File.ReadAllBytes(imagePath + index +".png");
+
+        Texture2D texture = new Texture2D(1920, 1080);
+        texture.LoadImage(bytes);
+
+        Rect rect = new Rect(0, 0, 1920, 1080);
+        image.sprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+    }
+    IEnumerator ShowLoadDialogCoroutine(Image image, int index)
     {
         yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, true, null, null, "Load Files and Folders", "Load");
 
-        // Dialog is closed
-        // Print whether the user has selected some files/folders or cancelled the operation (FileBrowser.Success)
         Debug.Log(FileBrowser.Success);
 
         if (FileBrowser.Success)
         {
-            // Print paths of the selected files (FileBrowser.Result) (null, if FileBrowser.Success is false)
             for (int i = 0; i < FileBrowser.Result.Length; i++)
                 Debug.Log(FileBrowser.Result[i]);
 
-            // Read the bytes of the first file via FileBrowserHelpers
-            // Contrary to File.ReadAllBytes, this function works on Android 10+, as well
             byte[] bytes = FileBrowserHelpers.ReadBytesFromFile(FileBrowser.Result[0]);
-
-            Texture2D texture = new Texture2D(0, 0);
+            
+            Texture2D texture = new Texture2D(1920, 1080);//이미지 사이즈가 안 맞음.
             texture.LoadImage(bytes);
 
-            Rect rect = new Rect(0, 0, 75, 75);
+            Rect rect = new Rect(0, 0, 1920, 1080);
             image.sprite = Sprite.Create(texture, rect, new Vector2(0.5f,0.5f));
 
-            // Or, copy the first file to persistentDataPath
+            File.WriteAllBytes(imagePath + index + ".png", texture.EncodeToPNG());
+
             string destinationPath = Path.Combine(Application.persistentDataPath, FileBrowserHelpers.GetFilename(FileBrowser.Result[0]));
             FileBrowserHelpers.CopyFile(FileBrowser.Result[0], destinationPath);
         }

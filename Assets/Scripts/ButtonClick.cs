@@ -63,7 +63,7 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
             m_menu.info.Add(CommitInput[1].text);
             m_menu.category.Add(category);
             m_menu.scope.Add(int.Parse(CommitInput[2].text));
-            ms.Add(m_menu.menu.Count-1);
+            ms.AddContent(m_menu.menu.Count-1);
         }
         else if(TextCoroutine == null)
         {

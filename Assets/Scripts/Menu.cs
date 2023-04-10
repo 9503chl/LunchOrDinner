@@ -17,7 +17,6 @@ public enum Category
 [CreateAssetMenu]
 public class Menu : ScriptableObject
 {
-    public List<Sprite> images = new List<Sprite>();
     public List<string> menu = new List<string>();
     public List<Category> category = new List<Category>() { };
     public List<string> info = new List<string>();
