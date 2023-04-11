@@ -33,6 +33,8 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
 
     MenuScroll ms;
 
+    List<InputField> inputFields = new List<InputField>();
+
     Coroutine TextCoroutine;
     void Start()
     {
@@ -49,6 +51,13 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
         CategoryToggles[4].onValueChanged.AddListener(delegate { CategoryToggle(4); });
         CategoryToggles[5].onValueChanged.AddListener(delegate { CategoryToggle(5); });
 
+        foreach (var item in CommitInput)
+        {
+            inputFields.Add(item.transform.parent.GetComponent<InputField>());
+        }
+        inputFields[0].characterLimit = 10;
+        inputFields[1].characterLimit = 20;
+        inputFields[2].characterValidation = InputField.CharacterValidation.Integer;
         ms = FindObjectOfType<MenuScroll>();
     }
     void OpenSlot()
@@ -69,6 +78,10 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
         {
             TextCoroutine = StartCoroutine(Notice("메뉴가 이미 존재합니다."));
         }
+        CategoryToggles[0].isOn = true;
+        
+
+        InputClear(inputFields);
     }
     void RevokeMenu()
     {
@@ -85,6 +98,7 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
         {
             TextCoroutine = StartCoroutine(Notice("메뉴가 존재하지 않습니다."));
         }
+        InputClear(RevokeInput.transform.parent.GetComponent<InputField>());
     }
     void CategoryToggle(int index)
     {
@@ -102,10 +116,22 @@ public class ButtonClick : MonoBehaviour//글자제한 걸어야함.
         {
             TextCoroutine = StartCoroutine(Notice("메뉴가 존재하지 않습니다."));
         }
+        InputClear(RevokeInput.transform.parent.GetComponent<InputField>());
     }
     void Back()
     {
          Application.Quit();
+    }
+    void InputClear(List <InputField> inputFields)//글자 제한도 필요
+    {
+        foreach(var text in inputFields)
+        {
+            text.text = string.Empty;
+        }
+    }
+    void InputClear(InputField inputField)
+    {
+        inputField.text = string.Empty;
     }
 
     IEnumerator Notice(string text)
