@@ -8,17 +8,38 @@ using UnityEngine.UI;
 
 public class MenuScroll : MonoBehaviour
 {
+    private static MenuScroll instance;
+    public static MenuScroll Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                MenuScroll[] templates = FindObjectsOfType<MenuScroll>();
+                if (templates.Length > 0)
+                {
+                    instance = templates[0];
+                    instance.enabled = true;
+                    instance.gameObject.SetActive(true);
+                }
+            }
+            return instance;
+        }
+    }
+
     [SerializeField] Menu m_menu;
 
     [SerializeField] GameObject Content;
 
     [SerializeField] Scrollbar scrollbar;
 
-    Texture2D tempTexture;
+    public GameObject EditPanel;
 
-    Rect tempRect;
+    private Texture2D tempTexture;
 
-    string imagePath = "Assets/Resources/Images/";
+    private Rect tempRect;
+
+    private string imagePath = "Assets/Resources/Images/";
 
     public List<GameObject> menuContents = new List<GameObject>(); 
     public List<GameObject> SpicyMenu = new List<GameObject>();
@@ -40,18 +61,19 @@ public class MenuScroll : MonoBehaviour
     {
         GameObject temp = Instantiate(Content, transform);
         temp.name = index.ToString();
-        Button button = temp.GetComponentInChildren<Button>();
+        Button[] button = temp.GetComponentsInChildren<Button>();
         Image image = temp.GetComponentInChildren<Image>();
         if(File.Exists(imagePath + index +".png")) 
         {
             LoadImage(image, index);
         }
-        button.onClick.AddListener(delegate { ImageBrowse(image,index); });
+        button[0].onClick.AddListener(delegate { ImageBrowse(image,index); });
+        button[1].onClick.AddListener(delegate { EditCategory(index); });//카테고리 수정 버튼
         Text[] texts = temp.GetComponentsInChildren<Text>();
         texts[0].text = m_menu.menu[index];//이름
         texts[1].text = m_menu.category[index].ToString();//카테고리
-        texts[2].text = m_menu.info[index];//설명
-        texts[3].text = m_menu.scope[index].ToString();//평점
+        texts[3].text = m_menu.info[index];//설명
+        texts[4].text = m_menu.scope[index].ToString();//평점
         menuContents.Add(temp);
         AddMenu(m_menu.category[index], temp);
     }
@@ -72,6 +94,14 @@ public class MenuScroll : MonoBehaviour
         {
             colorOn = StartCoroutine(ColorOn(texts));
         }
+    }
+    public void ChangeCategory(int index, Category c)
+    {
+        m_menu.category[index] = c;
+
+        Text[] tempText = menuContents[index].GetComponentsInChildren<Text>();
+
+        tempText[1].text = c.ToString();
     }
     public void AddMenu(Category category, GameObject obj)
     {
@@ -114,6 +144,15 @@ public class MenuScroll : MonoBehaviour
                 WaitingMenu.RemoveAt(index);
                 break;
         }
+    }
+
+    private void EditCategory(int index)
+    {
+        EditPanel.SetActive(true);
+
+        EditPanel editPanel = EditPanel.GetComponent<EditPanel>();
+        editPanel.index = index;
+        editPanel.category = (Category)index;
     }
     public void ImageBrowse(Image image,int index)
     {
